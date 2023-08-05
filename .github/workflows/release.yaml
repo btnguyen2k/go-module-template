@@ -15,10 +15,6 @@ permissions:
 jobs:
   Test:
     runs-on: ubuntu-latest
-#    if: |
-#      github.event.workflow_run.event == 'pull_request' &&
-#      github.event.workflow_run.conclusion == 'success' &&
-#      github.ref == 'refs/heads/release'
     steps:
       - name: Set up Go env
         uses: actions/setup-go@v4
@@ -33,9 +29,12 @@ jobs:
 
   Release:
     needs: [ Test ]
+    runs-on: ubuntu-latest
     if: |
+#      github.event.workflow_run.event == 'pull_request' &&
+#      github.event.workflow_run.conclusion == 'success' &&
+#      github.ref == 'refs/heads/release' &&
       github.event.repository.fork == false
-      runs-on: ubuntu-latest
     steps:
       - name: Release
         uses: actions/github-script@v6
