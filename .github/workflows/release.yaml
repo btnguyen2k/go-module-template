@@ -41,6 +41,10 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 'lts/*'
+      - name: Dummy
+        run: |
+          pwd
+          ls -l
       - name: Release
         uses: actions/github-script@v6
         with:
@@ -72,6 +76,13 @@ jobs:
               console.log(`No release version found in file <${fileReleaseNotes}>.`);
               return;
             }
+            const tagName = `v${version}`;
+#            const tag = await github.rest.tags.get({
+            #              owner: context.repo.owner,
+            #              repo: context.repo.repo,
+            #              pull_number: pr_number,
+            #            });
+
 
 #            const releaseNotesData = fs.readFileSync('./RELEASE-NOTES.md', 'utf8');
 #            console.log(releaseNotesData);
