@@ -45,6 +45,7 @@ jobs:
         run: |
           pwd
           ls -l
+          node -v
       - name: Release
         uses: actions/github-script@v6
         with:
