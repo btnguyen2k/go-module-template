@@ -25,3 +25,5 @@ go.work
 .idea/
 .vscode/
 *.sublime-workspace
+
+/temp.js

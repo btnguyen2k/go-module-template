@@ -44,10 +44,29 @@ jobs:
           script: |
             console.log('Parsing release notes... 🕜');
             
-            const fs = require('fs');
-            const file = await fs.open('./RELEASE-NOTES.md');
+            const fileReleaseNotes = './RELEASE-NOTES.md';
+            const reSemver = /^#+.*?[\s:-]v?((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)/;
+            const fs = require('fs/promises');
+            const file = await fs.open(`${fileReleaseNotes}`, `r`);
+            const releaseNotes = []
+            let enterReleaseNotes = false;
+            let version = '';
             for await (const line of file.readLines({encoding: 'utf8'})) {
-              console.log(line);
+              const matches = line.match(reSemver)
+              if (matches) {
+                if (enterReleaseNotes) {
+                  break;
+                }
+                enterReleaseNotes = true;
+                version = matches[1];
+              } else if (enterReleaseNotes) {
+                releaseNotes.push(line);
+              }
+            }
+            if (version === '') {
+              console.log('Stop 🚫');
+              console.log(`No release version found in file <${fileReleaseNotes}>.`);
+              return;
             }
 
 #            const releaseNotesData = fs.readFileSync('./RELEASE-NOTES.md', 'utf8');
