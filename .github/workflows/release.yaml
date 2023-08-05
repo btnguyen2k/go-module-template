@@ -1,0 +1,68 @@
+# Automatically release new versions
+
+name: "release"
+on:
+  workflow_run:
+    workflows: [ "ci" ]
+    types: [ "completed" ]
+
+  # Allow manually trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read # for checkout
+
+jobs:
+  Test:
+    runs-on: ubuntu-latest
+#    if: |
+#      github.event.workflow_run.event == 'pull_request' &&
+#      github.event.workflow_run.conclusion == 'success' &&
+#      github.ref == 'refs/heads/release'
+    steps:
+      - name: Set up Go env
+        uses: actions/setup-go@v4
+        with:
+          go-version: ^1.18
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v3
+      - name: Run tests
+        run: |
+          export CHECK_RELEASE_VERSION=true
+          go test -v -timeout 9999s -count 1 -p 1 -cover -coverprofile coverage.txt .
+
+  Release:
+    needs: [ Test ]
+    if: |
+      github.event.repository.fork == false
+      runs-on: ubuntu-latest
+    steps:
+      - name: Release
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            console.log('Creating release... 🕜');
+#            if (!context.payload.pull_request && (!context.payload.workflow_run.pull_requests || context.payload.workflow_run.pull_requests.length === 0)) {
+#              console.log('Not Merged 🚫');
+#              console.log('No pull_request found in payload.');
+#              return;
+#            }
+#            const pr_number = context.payload.pull_request ? context.payload.pull_request.number : context.payload.workflow_run.pull_requests[0].number
+#            console.log(`Merging PR <${pr_number}>... 🕜`);
+#            const pr = await github.rest.pulls.get({
+#              owner: context.repo.owner,
+#              repo: context.repo.repo,
+#              pull_number: pr_number,
+#            });
+#            if (pr.data.user.login !== 'dependabot[bot]') {
+#              console.log('Not Merged 🚫');
+#              console.log(`User <${pr.data.user.login}> does not equal <dependabot[bot]>`);
+#            } else {
+#              await github.rest.pulls.merge({
+#                owner: context.repo.owner,
+#                repo: context.repo.repo,
+#                pull_number: pr_number,
+#              });
+#              console.log('Merged 🎉');
+#            }
