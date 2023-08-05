@@ -6,12 +6,6 @@ on:
     workflows: [ "ci" ]
     types: [ "completed" ]
 
-  # Allow manually trigger
-  workflow_dispatch:
-
-permissions:
-  contents: read # for checkout
-
 jobs:
   Test:
     runs-on: ubuntu-latest
@@ -19,30 +13,40 @@ jobs:
       - name: Set up Go env
         uses: actions/setup-go@v4
         with:
-          go-version: ^1.18
-      - name: Check out code into the Go module directory
+          go-version: 'stable'
+      - name: Check out code
         uses: actions/checkout@v3
       - name: Run tests
         run: |
           export CHECK_RELEASE_VERSION=true
-          go test -v -timeout 9999s -count 1 -p 1 -cover -coverprofile coverage.txt .
+          go test -v -timeout 9999s -count 1 -p 1 .
 
   Release:
+    #    if: |
+    #      github.event.repository.fork == false &&
+    #      github.event.workflow_run.event == 'pull_request' &&
+    #      github.event.workflow_run.conclusion == 'success' &&
+    #      github.event.pull_request.merged == true &&
+    #      github.ref == 'refs/heads/release'
     needs: [ Test ]
     runs-on: ubuntu-latest
-#    if: |
-#      github.event.workflow_run.event == 'pull_request' &&
-#      github.event.workflow_run.conclusion == 'success' &&
-#      github.ref == 'refs/heads/release' &&
-#      github.event.repository.fork == false
+    permissions:
+      contents: write # to be able to publish a GitHub release
+      issues: write # to be able to comment on released issues
+      pull-requests: write # to be able to comment on released pull requests
     steps:
+      - name: Check out code
+        uses: actions/checkout@v3
       - name: Release
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            console.log('Creating release... 🕜');
-
+            console.log('Parsing release notes... 🕜');
+            
+            const fs = require('fs');
+            const releaseNotesData = fs.readFileSync('./RELEASE-NOTES.md', 'utf8');
+            console.log(releaseNotesData);
 
 #            if (!context.payload.pull_request && (!context.payload.workflow_run.pull_requests || context.payload.workflow_run.pull_requests.length === 0)) {
 #              console.log('Not Merged 🚫');
