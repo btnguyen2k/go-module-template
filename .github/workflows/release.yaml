@@ -30,11 +30,11 @@ jobs:
   Release:
     needs: [ Test ]
     runs-on: ubuntu-latest
-    if: |
+#    if: |
 #      github.event.workflow_run.event == 'pull_request' &&
 #      github.event.workflow_run.conclusion == 'success' &&
 #      github.ref == 'refs/heads/release' &&
-      github.event.repository.fork == false
+#      github.event.repository.fork == false
     steps:
       - name: Release
         uses: actions/github-script@v6
@@ -42,6 +42,8 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             console.log('Creating release... 🕜');
+
+
 #            if (!context.payload.pull_request && (!context.payload.workflow_run.pull_requests || context.payload.workflow_run.pull_requests.length === 0)) {
 #              console.log('Not Merged 🚫');
 #              console.log('No pull_request found in payload.');
