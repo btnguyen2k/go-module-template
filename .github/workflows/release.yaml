@@ -45,8 +45,11 @@ jobs:
             console.log('Parsing release notes... 🕜');
             
             const fs = require('fs');
-            const releaseNotesData = fs.readFileSync('./RELEASE-NOTES.md', 'utf8');
-            console.log(releaseNotesData);
+            import { open } from 'node:fs/promises';
+            const file = await open('./RELEASE-NOTES.md');
+            for await (const line of file.readLines({encoding: 'utf8'})) {
+              console.log(line);
+            }
 
 #            if (!context.payload.pull_request && (!context.payload.workflow_run.pull_requests || context.payload.workflow_run.pull_requests.length === 0)) {
 #              console.log('Not Merged 🚫');
