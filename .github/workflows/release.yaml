@@ -15,7 +15,7 @@ jobs:
         with:
           go-version: 'stable'
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Run tests
         run: |
           export CHECK_RELEASE_VERSION=true
@@ -36,7 +36,7 @@ jobs:
       pull-requests: write # to be able to comment on released pull requests
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install Node
         uses: actions/setup-node@v3
         with:
