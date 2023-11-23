@@ -33,7 +33,7 @@ jobs:
           script: |
             console.log(context.payload.workflow_run)
             if (context.payload.workflow_run.event == 'pull_request') {
-              console.log(content.payload.pull_request)
+              console.log(context.payload.pull_request)
             }
       - name: Check out code
         uses: actions/checkout@v4
