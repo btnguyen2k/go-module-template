@@ -9,15 +9,22 @@ on:
 jobs:
   Test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go: [ '1.18', 'oldstable', 'stable' ]
+    name: Run tests with Go ${{ matrix.go }}
     steps:
+      - name: Check out code
+        uses: actions/checkout@v4
       - name: Set up Go env
         uses: actions/setup-go@v4
         with:
-          go-version: 'stable'
-      - name: Check out code
-        uses: actions/checkout@v4
+          go-version: ${{ matrix.go }}
       - name: Run tests
         run: |
           go test -v -timeout 9999s -count 1 -p 1 -cover -coverprofile coverage.txt .
       - name: Codecov
         uses: codecov/codecov-action@v3
+        with:
+          flags: generic
+          name: generic
