@@ -9,16 +9,16 @@ on:
 jobs:
   ReleaseDryRun:
     runs-on: ubuntu-latest
-    if: |
-      github.event.repository.fork == false &&
-      github.event.workflow_run.event == 'pull_request' &&
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.pull_request.merged == true &&
-      github.ref == 'refs/heads/release'
-    permissions:
-      contents: write # to be able to publish a GitHub release
-      issues: write # to be able to comment on released issues
-      pull-requests: write # to be able to comment on released pull requests
+#    if: |
+#      github.event.repository.fork == false &&
+#      github.event.workflow_run.event == 'pull_request' &&
+#      github.event.workflow_run.conclusion == 'success' &&
+#      github.event.pull_request.merged == true &&
+#      github.ref == 'refs/heads/release'
+#    permissions:
+#      contents: write # to be able to publish a GitHub release
+#      issues: write # to be able to comment on released issues
+#      pull-requests: write # to be able to comment on released pull requests
     outputs:
       RESULT: ${{ steps.release_dry_run.outputs.result }}
       VERSION: ${{ steps.release_dry_run.outputs.releaseVersion }}
