@@ -7,107 +7,114 @@ on:
     types: [ "completed" ]
 
 jobs:
-  Test:
+  Dummy:
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Go env
-        uses: actions/setup-go@v4
-        with:
-          go-version: 'stable'
-      - name: Check out code
-        uses: actions/checkout@v4
-      - name: Run tests
-        run: |
-          export CHECK_RELEASE_VERSION=true
-          go test -v -timeout 9999s -count 1 -p 1 .
-
-  Release:
-    #    if: |
-    #      github.event.repository.fork == false &&
-    #      github.event.workflow_run.event == 'pull_request' &&
-    #      github.event.workflow_run.conclusion == 'success' &&
-    #      github.event.pull_request.merged == true &&
-    #      github.ref == 'refs/heads/release'
-    needs: [ Test ]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write # to be able to publish a GitHub release
-      issues: write # to be able to comment on released issues
-      pull-requests: write # to be able to comment on released pull requests
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-      - name: Install Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 'lts/*'
       - name: Dummy
         run: |
           pwd
           ls -l
-          node -v
-      - name: Release
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            console.log('Parsing release notes... 🕜');
-            
-            const fileReleaseNotes = './RELEASE-NOTES.md';
-            const reSemver = /^#+.*?[\s:-]v?((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)/;
-            const fs = require('fs/promises');
-            const file = await fs.open(`${fileReleaseNotes}`, `r`);
-            const releaseNotes = []
-            let enterReleaseNotes = false;
-            let version = '';
-            for await (const line of file.readLines({encoding: 'utf8'})) {
-              const matches = line.match(reSemver)
-              if (matches) {
-                if (enterReleaseNotes) {
-                  break;
-                }
-                enterReleaseNotes = true;
-                version = matches[1];
-              } else if (enterReleaseNotes) {
-                releaseNotes.push(line);
-              }
-            }
-            if (version === '') {
-              console.log('Stop 🚫');
-              console.log(`No release version found in file <${fileReleaseNotes}>.`);
-              return;
-            }
-            const tagName = `v${version}`;
-#            const tag = await github.rest.tags.get({
-            #              owner: context.repo.owner,
-            #              repo: context.repo.repo,
-            #              pull_number: pr_number,
-            #            });
 
-
-#            const releaseNotesData = fs.readFileSync('./RELEASE-NOTES.md', 'utf8');
-#            console.log(releaseNotesData);
-
-#            if (!context.payload.pull_request && (!context.payload.workflow_run.pull_requests || context.payload.workflow_run.pull_requests.length === 0)) {
-#              console.log('Not Merged 🚫');
-#              console.log('No pull_request found in payload.');
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Set up Go env
+#        uses: actions/setup-go@v4
+#        with:
+#          go-version: 'stable'
+#      - name: Check out code
+#        uses: actions/checkout@v4
+#      - name: Run tests
+#        run: |
+#          export CHECK_RELEASE_VERSION=true
+#          go test -v -timeout 9999s -count 1 -p 1 .
+#
+#  Release:
+#    #    if: |
+#    #      github.event.repository.fork == false &&
+#    #      github.event.workflow_run.event == 'pull_request' &&
+#    #      github.event.workflow_run.conclusion == 'success' &&
+#    #      github.event.pull_request.merged == true &&
+#    #      github.ref == 'refs/heads/release'
+#    needs: [ Test ]
+#    runs-on: ubuntu-latest
+#    permissions:
+#      contents: write # to be able to publish a GitHub release
+#      issues: write # to be able to comment on released issues
+#      pull-requests: write # to be able to comment on released pull requests
+#    steps:
+#      - name: Check out code
+#        uses: actions/checkout@v4
+#      - name: Install Node
+#        uses: actions/setup-node@v4
+#        with:
+#          node-version: 'lts/*'
+#      - name: Dummy
+#        run: |
+#          pwd
+#          ls -l
+#          node -v
+#      - name: Release
+#        uses: actions/github-script@v7
+#        with:
+#          github-token: ${{ secrets.GITHUB_TOKEN }}
+#          script: |
+#            console.log('Parsing release notes... 🕜');
+#
+#            const fileReleaseNotes = './RELEASE-NOTES.md';
+#            const reSemver = /^#+.*?[\s:-]v?((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)/;
+#            const fs = require('fs/promises');
+#            const file = await fs.open(`${fileReleaseNotes}`, `r`);
+#            const releaseNotes = []
+#            let enterReleaseNotes = false;
+#            let version = '';
+#            for await (const line of file.readLines({encoding: 'utf8'})) {
+#              const matches = line.match(reSemver)
+#              if (matches) {
+#                if (enterReleaseNotes) {
+#                  break;
+#                }
+#                enterReleaseNotes = true;
+#                version = matches[1];
+#              } else if (enterReleaseNotes) {
+#                releaseNotes.push(line);
+#              }
+#            }
+#            if (version === '') {
+#              console.log('Stop 🚫');
+#              console.log(`No release version found in file <${fileReleaseNotes}>.`);
 #              return;
 #            }
-#            const pr_number = context.payload.pull_request ? context.payload.pull_request.number : context.payload.workflow_run.pull_requests[0].number
-#            console.log(`Merging PR <${pr_number}>... 🕜`);
-#            const pr = await github.rest.pulls.get({
-#              owner: context.repo.owner,
-#              repo: context.repo.repo,
-#              pull_number: pr_number,
-#            });
-#            if (pr.data.user.login !== 'dependabot[bot]') {
-#              console.log('Not Merged 🚫');
-#              console.log(`User <${pr.data.user.login}> does not equal <dependabot[bot]>`);
-#            } else {
-#              await github.rest.pulls.merge({
-#                owner: context.repo.owner,
-#                repo: context.repo.repo,
-#                pull_number: pr_number,
-#              });
-#              console.log('Merged 🎉');
-#            }
+#            const tagName = `v${version}`;
+##            const tag = await github.rest.tags.get({
+#            #              owner: context.repo.owner,
+#            #              repo: context.repo.repo,
+#            #              pull_number: pr_number,
+#            #            });
+#
+#
+##            const releaseNotesData = fs.readFileSync('./RELEASE-NOTES.md', 'utf8');
+##            console.log(releaseNotesData);
+#
+##            if (!context.payload.pull_request && (!context.payload.workflow_run.pull_requests || context.payload.workflow_run.pull_requests.length === 0)) {
+##              console.log('Not Merged 🚫');
+##              console.log('No pull_request found in payload.');
+##              return;
+##            }
+##            const pr_number = context.payload.pull_request ? context.payload.pull_request.number : context.payload.workflow_run.pull_requests[0].number
+##            console.log(`Merging PR <${pr_number}>... 🕜`);
+##            const pr = await github.rest.pulls.get({
+##              owner: context.repo.owner,
+##              repo: context.repo.repo,
+##              pull_number: pr_number,
+##            });
+##            if (pr.data.user.login !== 'dependabot[bot]') {
+##              console.log('Not Merged 🚫');
+##              console.log(`User <${pr.data.user.login}> does not equal <dependabot[bot]>`);
+##            } else {
+##              await github.rest.pulls.merge({
+##                owner: context.repo.owner,
+##                repo: context.repo.repo,
+##                pull_number: pr_number,
+##              });
+##              console.log('Merged 🎉');
+##            }
