@@ -11,9 +11,15 @@ Template to quickly spin up a Go module project.
 - [Go modules](https://blog.golang.org/using-go-modules) enabled.
 - Template for README, LICENSE, RELEASE-NOTES, and .gitignore files.
 - GitHub actions included:
-  - `dependabot.yml`, `automerge-dependabot.yaml`: automatically update dependencies and merge PRs from dependabot.
-  - `ci.yml`: automatically run tests and generate code coverage report.
-  - `release.yml`: automatically create a new release.
+  - `dependabot.yaml`, `automerge-dependabot.yaml`: automatically update dependencies and merge PRs from dependabot.
+  - `ci.yaml`: automatically run tests and generate code coverage report.
+  - `release.yaml`: automatically create a new release.
+
+**Default workflow**
+
+- Dependencies are checked and updated weekly by `dependabot.yaml`, and then PRs are automatically merged to `main` branch by `automerge-dependabot.yaml`.
+- `ci.yaml` is triggered on every push to any branch to run tests and generate code coverage report.
+- Once PR is approved and merged to `release` branch, `release.yaml` is triggered to create a new release. Then a new PR is created to merge `release` branch to `main` branch.
 
 ## Usage
 
