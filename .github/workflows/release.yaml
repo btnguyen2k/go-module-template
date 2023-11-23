@@ -8,14 +8,15 @@ on:
 
 env:
   BRANCH: 'release'
-  GITHUB_REF: 'refs/heads/release'
+  # GITHUB_REF: 'refs/heads/release'
+  GITHUB_REF: 'release'
   TAG_PREFIX: 'v'
 
 jobs:
   ReleaseDryRun:
     runs-on: ubuntu-latest
     if: |
-      github.ref == 'refs/heads/release'
+      github.ref == '${GITHUB_REF}'
     outputs:
       RESULT: ${{ steps.release_dry_run.outputs.result }}
       VERSION: ${{ steps.release_dry_run.outputs.releaseVersion }}
