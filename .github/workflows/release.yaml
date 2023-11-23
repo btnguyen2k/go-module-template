@@ -6,19 +6,16 @@ on:
     workflows: [ "ci" ]
     types: [ "completed" ]
 
+env:
+  BRANCH: 'release'
+  GITHUB_REF: 'refs/heads/release'
+  TAG_PREFIX: 'v'
+
 jobs:
   ReleaseDryRun:
     runs-on: ubuntu-latest
-#    if: |
-#      github.event.repository.fork == false &&
-#      github.event.workflow_run.event == 'pull_request' &&
-#      github.event.workflow_run.conclusion == 'success' &&
-#      github.event.pull_request.merged == true &&
-#      github.ref == 'refs/heads/release'
-#    permissions:
-#      contents: write # to be able to publish a GitHub release
-#      issues: write # to be able to comment on released issues
-#      pull-requests: write # to be able to comment on released pull requests
+    if: |
+      github.ref == 'refs/heads/release'
     outputs:
       RESULT: ${{ steps.release_dry_run.outputs.result }}
       VERSION: ${{ steps.release_dry_run.outputs.releaseVersion }}
@@ -39,71 +36,90 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           tag-major-release: false
           tag-minor-release: false
-          branches: 'release'
-          tag-prefix: 'v'
+          branches: ${DAY_OF_WEEK}
+          tag-prefix: ${TAG_PREFIX}
           tag-only: true
 
-#        uses: actions/github-script@v7
-#        with:
-#          github-token: ${{ secrets.GITHUB_TOKEN }}
-#          script: |
-#            console.log('Parsing release notes... 🕜');
-#
-#            const fileReleaseNotes = './RELEASE-NOTES.md';
-#            const reSemver = /^#+.*?[\s:-]v?((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)/;
-#            const fs = require('fs/promises');
-#            const file = await fs.open(`${fileReleaseNotes}`, `r`);
-#            const releaseNotes = []
-#            let enterReleaseNotes = false;
-#            let version = '';
-#            for await (const line of file.readLines({encoding: 'utf8'})) {
-#              const matches = line.match(reSemver)
-#              if (matches) {
-#                if (enterReleaseNotes) {
-#                  break;
-#                }
-#                enterReleaseNotes = true;
-#                version = matches[1];
-#              } else if (enterReleaseNotes) {
-#                releaseNotes.push(line);
-#              }
-#            }
-#            if (version === '') {
-#              console.log('Stop 🚫');
-#              console.log(`No release version found in file <${fileReleaseNotes}>.`);
-#              return;
-#            }
-#            const tagName = `v${version}`;
-##            const tag = await github.rest.tags.get({
-#            #              owner: context.repo.owner,
-#            #              repo: context.repo.repo,
-#            #              pull_number: pr_number,
-#            #            });
-#
-#
-##            const releaseNotesData = fs.readFileSync('./RELEASE-NOTES.md', 'utf8');
-##            console.log(releaseNotesData);
-#
-##            if (!context.payload.pull_request && (!context.payload.workflow_run.pull_requests || context.payload.workflow_run.pull_requests.length === 0)) {
-##              console.log('Not Merged 🚫');
-##              console.log('No pull_request found in payload.');
-##              return;
-##            }
-##            const pr_number = context.payload.pull_request ? context.payload.pull_request.number : context.payload.workflow_run.pull_requests[0].number
-##            console.log(`Merging PR <${pr_number}>... 🕜`);
-##            const pr = await github.rest.pulls.get({
-##              owner: context.repo.owner,
-##              repo: context.repo.repo,
-##              pull_number: pr_number,
-##            });
-##            if (pr.data.user.login !== 'dependabot[bot]') {
-##              console.log('Not Merged 🚫');
-##              console.log(`User <${pr.data.user.login}> does not equal <dependabot[bot]>`);
-##            } else {
-##              await github.rest.pulls.merge({
-##                owner: context.repo.owner,
-##                repo: context.repo.repo,
-##                pull_number: pr_number,
-##              });
-##              console.log('Merged 🎉');
-##            }
+  Release:
+    runs-on: ubuntu-latest
+    if: |
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.pull_request.merged == true &&
+      github.ref == '${GITHUB_REF}'
+    needs: [ 'ReleaseDryRun' ]
+    permissions:
+      contents: write # to be able to publish a GitHub release
+    outputs:
+      RESULT: ${{ needs.ReleaseDryRun.outputs.RESULT }}
+      VERSION: ${{ needs.ReleaseDryRun.outputs.VERSION }}
+      RELEASE_NOTES: ${{ needs.ReleaseDryRun.outputs.RELEASE_NOTES }}
+    steps:
+      - name: Update module meta
+        run: |
+          RESULT='${{ needs.ReleaseDryRun.outputs.RESULT }}'
+          VERSION='${{ needs.ReleaseDryRun.outputs.VERSION }}'
+          RELEASE_NOTES='${{ needs.ReleaseDryRun.outputs.RELEASE_NOTES }}'
+          
+          echo "🕘 Updating module meta..."
+          echo "   - RESULT: ${RESULT}"
+          echo "   - VERSION: ${VERSION}"
+          echo "   - RELEASE_NOTES: ${RELEASE_NOTES}"
+          if [ "${RESULT}" == "SUCCESS" ]; then
+            DATE=`date +%Y-%m-%d`
+            FILE_CHANGELOG="RELEASE-NOTES.md"
+            FILE_MODULE="module.go"
+            head -1 ${FILE_CHANGELOG} > .temp.md
+            echo -e "\n## ${DATE} - v${VERSION}\n\n${RELEASE_NOTES}" >> .temp.md
+            tail -n +2 ${FILE_CHANGELOG} >> .temp.md
+            mv -f .temp.md ${FILE_CHANGELOG}
+            echo ========== content of ${FILE_CHANGELOG} ==========
+            cat ${FILE_CHANGELOG}
+          
+            sed -i -E "s/^(\s*Version\s*=\s*)\"[^\"]+\"/\1\"${VERSION}\"/" ${FILE_MODULE}
+            echo ========== content of ${FILE_MODULE} ==========
+            cat ${FILE_MODULE}
+          
+            echo ========== update .go files ==========
+            sed -i -E "s/<<VERSION>>/v${VERSION}/" ${MODULE}/*.go
+          
+            echo ========== commit updates ==========
+            git config --global user.email "<>"
+            git config --global user.name "CI Build"
+            git commit -am "Update ${FILE_CHANGELOG} and ${FILE_MODULE} for new version ${VERSION}"
+            git push origin ${BRANCH}
+          
+            echo ========== tag ==========
+            git tag -f -a "${TAG_PREFIX}${VERSION}" -m "Release ${TAG_PREFIX}/v${VERSION}"
+            git push origin "${TAG_PREFIX}${VERSION}" -f
+            echo "✅ Done."
+          else
+            echo "❎ SKIPPED."
+          fi
+
+  MergeToMaster:
+    runs-on: ubuntu-latest
+    needs: [ 'Release' ]
+    permissions:
+      pull-requests: write # to be able to create PRs or comment on released PRs
+    steps:
+      - uses: actions/github-script@v7
+        env:
+          RESULT: ${{ needs.Release.outputs.RESULT }}
+          RELEASE_NOTES: ${{ needs.Release.outputs.RELEASE_NOTES }}
+        with:
+          script: |
+            if (process.env['RESULT'] != 'SUCCESS') {
+              console.log('❎ SKIPPED.');
+              return;
+            }
+            const {data: pr} = await github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: "Merge branch semver to master after releasing new version ${{ needs.Release.outputs.VERSION }}",
+              body: process['env']['RELEASE_NOTES'],
+              head: '${BRANCH}',
+              base: 'master',
+              maintainer_can_modify: true,
+            });
+            console.log('✅ Created PR: ', pr);
