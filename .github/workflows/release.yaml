@@ -1,4 +1,4 @@
-# Automatically release new versions
+# Automatically release a new version when a PR is merged to branch `release`
 
 name: "release"
 on:
@@ -8,32 +8,33 @@ on:
 
 env:
   BRANCH: 'release'
-  # GITHUB_REF: 'refs/heads/release'
-  GITHUB_REF: 'release'
+  NEED_REF: 'refs/heads/release'
   TAG_PREFIX: 'v'
 
 jobs:
   ReleaseDryRun:
     runs-on: ubuntu-latest
-    # if: |
-    #   github.ref == '${GITHUB_REF}'
+    if: |
+      github.ref == '${NEED_REF}'
     outputs:
       RESULT: ${{ steps.release_dry_run.outputs.result }}
       VERSION: ${{ steps.release_dry_run.outputs.releaseVersion }}
       RELEASE_NOTES: ${{ steps.release_dry_run.outputs.releaseNotes }}
     steps:
-      - name: Dummy
-        run: |
-          echo "BRANCH: ${BRANCH}"
-          echo "GITHUB_REF: ${GITHUB_REF}"
-          echo "TAG_PREFIX: ${TAG_PREFIX}"
-          echo "github.ref: ${{ github.ref }}"
-      - name: Dump 2
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            console.log(context.payload.workflow_run);
+#      - name: Dummy
+#        run: |
+#          echo "BRANCH: ${BRANCH}"
+#          echo "GITHUB_REF: ${GITHUB_REF}"
+#          echo "TAG_PREFIX: ${TAG_PREFIX}"
+#      - name: Dump 2
+#        uses: actions/github-script@v7
+#        with:
+#          github-token: ${{ secrets.GITHUB_TOKEN }}
+#          script: |
+#            console.log(context.payload.workflow_run)
+#            if (context.payload.workflow_run.event != 'pull_request') {
+#              console.log(content.payload.pull_request)
+#            }
       - name: Check out code
         uses: actions/checkout@v4
       - name: Install Node
@@ -49,7 +50,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           tag-major-release: false
           tag-minor-release: false
-          branches: ${DAY_OF_WEEK}
+          branches: ${BRANCH}
           tag-prefix: ${TAG_PREFIX}
           tag-only: true
 
@@ -58,8 +59,7 @@ jobs:
     if: |
       github.event.workflow_run.event == 'pull_request' &&
       github.event.workflow_run.conclusion == 'success' &&
-      github.event.pull_request.merged == true &&
-      github.ref == '${GITHUB_REF}'
+      github.event.pull_request.merged == true
     needs: [ 'ReleaseDryRun' ]
     permissions:
       contents: write # to be able to publish a GitHub release
