@@ -22,6 +22,15 @@ jobs:
       VERSION: ${{ steps.release_dry_run.outputs.releaseVersion }}
       RELEASE_NOTES: ${{ steps.release_dry_run.outputs.releaseNotes }}
     steps:
+      - name: Dummy
+        run: |
+          echo "BRANCH: ${BRANCH}"
+          echo "GITHUB_REF: ${GITHUB_REF}"
+          echo "TAG_PREFIX: ${TAG_PREFIX}"
+          echo "github.event.workflow_run.event: ${github.event.workflow_run.event}"
+          echo "github.event.workflow_run.conclusion: ${github.event.workflow_run.conclusion}"
+          echo "github.event.pull_request.merged: ${github.event.pull_request.merged}"
+          echo "github.ref: ${github.ref}"
       - name: Check out code
         uses: actions/checkout@v4
       - name: Install Node
