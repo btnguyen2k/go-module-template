@@ -32,7 +32,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             console.log(context.payload.workflow_run)
-            if (context.payload.workflow_run.event != 'pull_request') {
+            if (context.payload.workflow_run.event == 'pull_request') {
               console.log(content.payload.pull_request)
             }
       - name: Check out code
