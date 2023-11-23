@@ -27,10 +27,13 @@ jobs:
           echo "BRANCH: ${BRANCH}"
           echo "GITHUB_REF: ${GITHUB_REF}"
           echo "TAG_PREFIX: ${TAG_PREFIX}"
-          echo "github.event.workflow_run.event: ${github.event.workflow_run.event}"
-          echo "github.event.workflow_run.conclusion: ${github.event.workflow_run.conclusion}"
-          echo "github.event.pull_request.merged: ${github.event.pull_request.merged}"
-          echo "github.ref: ${github.ref}"
+          echo "github.ref: ${{ github.ref }}"
+      - name: Dump 2
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            console.log(context.payload.workflow_run);
       - name: Check out code
         uses: actions/checkout@v4
       - name: Install Node
