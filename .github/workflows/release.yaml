@@ -7,53 +7,42 @@ on:
     types: [ "completed" ]
 
 jobs:
-  Dummy:
+  ReleaseDryRun:
     runs-on: ubuntu-latest
+    if: |
+      github.event.repository.fork == false &&
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.pull_request.merged == true &&
+      github.ref == 'refs/heads/release'
+    permissions:
+      contents: write # to be able to publish a GitHub release
+      issues: write # to be able to comment on released issues
+      pull-requests: write # to be able to comment on released pull requests
+    outputs:
+      RESULT: ${{ steps.release_dry_run.outputs.result }}
+      VERSION: ${{ steps.release_dry_run.outputs.releaseVersion }}
+      RELEASE_NOTES: ${{ steps.release_dry_run.outputs.releaseNotes }}
     steps:
-      - name: Dummy
-        run: |
-          pwd
-          ls -l
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+      - name: Release (dry-run)
+        id: release_dry_run
+        uses: btnguyen2k/action-semrelease@v3
+        with:
+          dry-run: true
+          auto-mode: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          tag-major-release: false
+          tag-minor-release: false
+          branches: 'release'
+          tag-prefix: 'v'
+          tag-only: true
 
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Set up Go env
-#        uses: actions/setup-go@v4
-#        with:
-#          go-version: 'stable'
-#      - name: Check out code
-#        uses: actions/checkout@v4
-#      - name: Run tests
-#        run: |
-#          export CHECK_RELEASE_VERSION=true
-#          go test -v -timeout 9999s -count 1 -p 1 .
-#
-#  Release:
-#    #    if: |
-#    #      github.event.repository.fork == false &&
-#    #      github.event.workflow_run.event == 'pull_request' &&
-#    #      github.event.workflow_run.conclusion == 'success' &&
-#    #      github.event.pull_request.merged == true &&
-#    #      github.ref == 'refs/heads/release'
-#    needs: [ Test ]
-#    runs-on: ubuntu-latest
-#    permissions:
-#      contents: write # to be able to publish a GitHub release
-#      issues: write # to be able to comment on released issues
-#      pull-requests: write # to be able to comment on released pull requests
-#    steps:
-#      - name: Check out code
-#        uses: actions/checkout@v4
-#      - name: Install Node
-#        uses: actions/setup-node@v4
-#        with:
-#          node-version: 'lts/*'
-#      - name: Dummy
-#        run: |
-#          pwd
-#          ls -l
-#          node -v
-#      - name: Release
 #        uses: actions/github-script@v7
 #        with:
 #          github-token: ${{ secrets.GITHUB_TOKEN }}
