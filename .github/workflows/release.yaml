@@ -15,8 +15,8 @@ env:
 jobs:
   ReleaseDryRun:
     runs-on: ubuntu-latest
-    if: |
-      github.ref == '${GITHUB_REF}'
+    # if: |
+    #   github.ref == '${GITHUB_REF}'
     outputs:
       RESULT: ${{ steps.release_dry_run.outputs.result }}
       VERSION: ${{ steps.release_dry_run.outputs.releaseVersion }}
