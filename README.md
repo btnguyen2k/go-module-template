@@ -15,7 +15,9 @@ Template to quickly spin up a Go module project.
   - `ci.yaml`: automatically run tests and generate code coverage report.
   - `release.yaml`: automatically create a new release.
 
-**Default workflow**
+**Workflow**
+
+Workflow implemented by this template is as follows:
 
 - Dependencies are checked and updated weekly by `dependabot.yaml`, and then PRs are automatically merged to `main` branch by `automerge-dependabot.yaml`.
 - `ci.yaml` is triggered on every push to any branch to run tests and generate code coverage report.
