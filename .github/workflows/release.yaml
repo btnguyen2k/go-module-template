@@ -30,15 +30,18 @@ jobs:
           echo "github.event.workflow_run.event: ${{ github.event.workflow_run.event }}"
           echo "github.event.workflow_run.conclusion: ${{ github.event.workflow_run.conclusion }}"
           echo "github.event.pull_request: ${{ github.event.pull_request }}"
+          echo "github.event: ${{ github.event }}"
+          echo "github: ${{ github }}"
       - name: Dummy 2
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            console.log(context.payload.workflow_run)
-            if (context.payload.workflow_run.event == 'pull_request') {
-              console.log(context.payload.pull_request)
-            }
+            console.log(context.payload)
+#            console.log(context.payload.workflow_run)
+#            if (context.payload.workflow_run.event == 'pull_request') {
+#              console.log(context.payload.pull_request)
+#            }
       - name: Check out code
         uses: actions/checkout@v4
       - name: Install Node
