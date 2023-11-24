@@ -5,10 +5,10 @@ on:
   workflow_run:
     workflows: [ 'ci' ]
     types: [ 'completed' ]
-    branches: [ 'main' ]
+    branches: [ 'main', 'release', 'dev' ]
 
 env:
-  BRANCH: 'release'
+  BRANCH_TO_RELEASE: 'release'
   TAG_PREFIX: 'v'
 
 jobs:
@@ -21,7 +21,7 @@ jobs:
     steps:
       - name: Dummy 1
         run: |
-          echo "BRANCH: ${BRANCH}"
+          echo "BRANCH_TO_RELEASE: ${BRANCH_TO_RELEASE}"
           echo "GITHUB_REF: ${GITHUB_REF}"
           echo "TAG_PREFIX: ${TAG_PREFIX}"
           echo "github.event.workflow_run.event: ${{ github.event.workflow_run.event }}"
@@ -51,7 +51,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           tag-major-release: false
           tag-minor-release: false
-          branches: ${{ env.BRANCH }}
+          branches: ${{ env.BRANCH_TO_RELEASE }}
           tag-prefix: ${{ env.TAG_PREFIX }}
           tag-only: true
 
@@ -107,7 +107,7 @@ jobs:
 #            git config --global user.email "<>"
 #            git config --global user.name "CI Build"
 #            git commit -am "Update ${FILE_CHANGELOG} and ${FILE_MODULE} for new version ${VERSION}"
-#            git push origin ${BRANCH}
+#            git push origin ${BRANCH_TO_RELEASE}
 #
 #            echo ========== tag ==========
 #            git tag -f -a "${TAG_PREFIX}${VERSION}" -m "Release ${TAG_PREFIX}/v${VERSION}"
@@ -138,7 +138,7 @@ jobs:
 #              repo: context.repo.repo,
 #              title: "Merge branch semver to master after releasing new version ${{ needs.Release.outputs.VERSION }}",
 #              body: process['env']['RELEASE_NOTES'],
-#              head: process['env']['BRANCH'],
+#              head: process['env']['BRANCH_TO_RELEASE'],
 #              base: 'master',
 #              maintainer_can_modify: true,
 #            });
