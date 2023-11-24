@@ -84,6 +84,7 @@ jobs:
           else
             echo "❎ SKIPPED."
           fi
+          
 #          if [ "${RESULT}" == "SUCCESS" ]; then
 #            DATE=`date +%Y-%m-%d`
 #            FILE_CHANGELOG="RELEASE-NOTES.md"
