@@ -1,10 +1,10 @@
 # Automatically release a new version when a PR is merged to branch `release`
 
-name: "release"
+name: 'release'
 on:
   pull_request:
     types: [ closed ]
-    branches: [ release, main, dev ]
+    branches: [ release ]
 
 env:
   BRANCH_TO_RELEASE: 'release'
@@ -17,31 +17,13 @@ jobs:
   ReleaseDryRun:
     runs-on: ubuntu-latest
     needs: [ CallCI ]
+    if: |
+      github.event.pull_request.merged == true
     outputs:
       RESULT: ${{ steps.release_dry_run.outputs.result }}
       VERSION: ${{ steps.release_dry_run.outputs.releaseVersion }}
       RELEASE_NOTES: ${{ steps.release_dry_run.outputs.releaseNotes }}
     steps:
-      - name: Dummy 1
-        run: |
-          echo "BRANCH_TO_RELEASE: ${BRANCH_TO_RELEASE}"
-          echo "GITHUB_REF: ${GITHUB_REF}"
-          echo "TAG_PREFIX: ${TAG_PREFIX}"
-          echo "github.event.workflow_run.event: ${{ github.event.workflow_run.event }}"
-          echo "github.event.workflow_run.conclusion: ${{ github.event.workflow_run.conclusion }}"
-          echo "github.event.pull_request: ${{ github.event.pull_request }}"
-          echo "github.event: ${{ github.event }}"
-          echo "github: ${{ github }}"
-      - name: Dummy 2
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            console.log(context.payload)
-#            console.log(context.payload.workflow_run)
-#            if (context.payload.workflow_run.event == 'pull_request') {
-#              console.log(context.payload.pull_request)
-#            }
       - name: Check out code
         uses: actions/checkout@v4
       - name: Install Node

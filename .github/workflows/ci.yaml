@@ -1,7 +1,9 @@
-name: "ci"
+name: 'ci'
 
 on:
   push:
+    branches: [ '*' ]
+  pull_request:
     branches: [ '*' ]
   workflow_call:
 
