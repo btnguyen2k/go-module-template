@@ -20,7 +20,7 @@ jobs:
       VERSION: ${{ steps.release_dry_run.outputs.releaseVersion }}
       RELEASE_NOTES: ${{ steps.release_dry_run.outputs.releaseNotes }}
     steps:
-      - name: Dummy
+      - name: Dummy 1
         run: |
           echo "BRANCH: ${BRANCH}"
           echo "GITHUB_REF: ${GITHUB_REF}"
