@@ -5,7 +5,7 @@ on:
   workflow_run:
     workflows: [ "ci" ]
     types: [ "completed" ]
-    branches: [ 'release' ]
+    branches: [ 'main' ]
 
 env:
   BRANCH: 'release'
@@ -14,8 +14,6 @@ env:
 jobs:
   ReleaseDryRun:
     runs-on: ubuntu-latest
-#    if: |
-#      github.ref == 'refs/heads/main'
     outputs:
       RESULT: ${{ steps.release_dry_run.outputs.result }}
       VERSION: ${{ steps.release_dry_run.outputs.releaseVersion }}
@@ -97,7 +95,7 @@ jobs:
 #            cat ${FILE_MODULE}
 #
 #            echo ========== update .go files ==========
-#            sed -i -E "s/<<VERSION>>/v${VERSION}/" ${MODULE}/*.go
+#            sed -i -E "s/<<VERSION>>/v${VERSION}/" ./*.go
 #
 #            echo ========== commit updates ==========
 #            git config --global user.email "<>"
@@ -134,7 +132,7 @@ jobs:
 #              repo: context.repo.repo,
 #              title: "Merge branch semver to master after releasing new version ${{ needs.Release.outputs.VERSION }}",
 #              body: process['env']['RELEASE_NOTES'],
-#              head: '${BRANCH}',
+#              head: process['env']['BRANCH'],
 #              base: 'master',
 #              maintainer_can_modify: true,
 #            });
