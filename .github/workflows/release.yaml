@@ -27,7 +27,7 @@ jobs:
           echo "TAG_PREFIX: ${TAG_PREFIX}"
           echo "github.event.workflow_run.event: ${{ github.event.workflow_run.event }}"
           echo "github.event.workflow_run.conclusion: ${{ github.event.workflow_run.conclusion }}"
-          eccho "github.event.pull_request: ${{ github.event.pull_request }}"
+          echo "github.event.pull_request: ${{ github.event.pull_request }}"
       - name: Dump 2
         uses: actions/github-script@v7
         with:
