@@ -3,8 +3,8 @@
 name: "release"
 on:
   workflow_run:
-    workflows: [ "ci" ]
-    types: [ "completed" ]
+    workflows: [ 'ci' ]
+    types: [ 'completed' ]
     branches: [ 'main' ]
 
 env:
@@ -80,6 +80,11 @@ jobs:
           echo "   - VERSION: ${VERSION}"
           echo "   - RELEASE_NOTES: ${RELEASE_NOTES}"
           if [ "${RESULT}" == "SUCCESS" ]; then
+            echo "✅ Done."
+          else
+            echo "❎ SKIPPED."
+          fi
+#          if [ "${RESULT}" == "SUCCESS" ]; then
 #            DATE=`date +%Y-%m-%d`
 #            FILE_CHANGELOG="RELEASE-NOTES.md"
 #            FILE_MODULE="module.go"
@@ -106,10 +111,10 @@ jobs:
 #            echo ========== tag ==========
 #            git tag -f -a "${TAG_PREFIX}${VERSION}" -m "Release ${TAG_PREFIX}/v${VERSION}"
 #            git push origin "${TAG_PREFIX}${VERSION}" -f
-            echo "✅ Done."
-          else
-            echo "❎ SKIPPED."
-          fi
+#            echo "✅ Done."
+#          else
+#            echo "❎ SKIPPED."
+#          fi
 
 #  MergeToMaster:
 #    runs-on: ubuntu-latest
