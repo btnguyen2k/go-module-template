@@ -2,18 +2,21 @@
 
 name: "release"
 on:
-  workflow_run:
-    workflows: [ 'ci' ]
-    types: [ 'completed' ]
-    branches: [ 'main', 'release', 'dev' ]
+  pull_request:
+    types: [ closed ]
+    branches: [ release, main, dev ]
 
 env:
   BRANCH_TO_RELEASE: 'release'
   TAG_PREFIX: 'v'
 
 jobs:
+  CallCI:
+    uses: ./.github/workflows/ci.yaml
+
   ReleaseDryRun:
     runs-on: ubuntu-latest
+    needs: [ CallCI ]
     outputs:
       RESULT: ${{ steps.release_dry_run.outputs.result }}
       VERSION: ${{ steps.release_dry_run.outputs.releaseVersion }}
@@ -55,36 +58,36 @@ jobs:
           tag-prefix: ${{ env.TAG_PREFIX }}
           tag-only: true
 
-  Release:
-    runs-on: ubuntu-latest
-    if: |
-      github.event.workflow_run.event == 'pull_request' &&
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.pull_request.merged == true
-    needs: [ 'ReleaseDryRun' ]
-    permissions:
-      contents: write # to be able to publish a GitHub release
-    outputs:
-      RESULT: ${{ needs.ReleaseDryRun.outputs.RESULT }}
-      VERSION: ${{ needs.ReleaseDryRun.outputs.VERSION }}
-      RELEASE_NOTES: ${{ needs.ReleaseDryRun.outputs.RELEASE_NOTES }}
-    steps:
-      - name: Update module meta
-        run: |
-          RESULT='${{ needs.ReleaseDryRun.outputs.RESULT }}'
-          VERSION='${{ needs.ReleaseDryRun.outputs.VERSION }}'
-          RELEASE_NOTES='${{ needs.ReleaseDryRun.outputs.RELEASE_NOTES }}'
+#  Release:
+#    runs-on: ubuntu-latest
+#    if: |
+#      github.event.workflow_run.event == 'pull_request' &&
+#      github.event.workflow_run.conclusion == 'success' &&
+#      github.event.pull_request.merged == true
+#    needs: [ 'ReleaseDryRun' ]
+#    permissions:
+#      contents: write # to be able to publish a GitHub release
+#    outputs:
+#      RESULT: ${{ needs.ReleaseDryRun.outputs.RESULT }}
+#      VERSION: ${{ needs.ReleaseDryRun.outputs.VERSION }}
+#      RELEASE_NOTES: ${{ needs.ReleaseDryRun.outputs.RELEASE_NOTES }}
+#    steps:
+#      - name: Update module meta
+#        run: |
+#          RESULT='${{ needs.ReleaseDryRun.outputs.RESULT }}'
+#          VERSION='${{ needs.ReleaseDryRun.outputs.VERSION }}'
+#          RELEASE_NOTES='${{ needs.ReleaseDryRun.outputs.RELEASE_NOTES }}'
+#
+#          echo "🕘 Updating module meta..."
+#          echo "   - RESULT: ${RESULT}"
+#          echo "   - VERSION: ${VERSION}"
+#          echo "   - RELEASE_NOTES: ${RELEASE_NOTES}"
+#          if [ "${RESULT}" == "SUCCESS" ]; then
+#            echo "✅ Done."
+#          else
+#            echo "❎ SKIPPED."
+#          fi
 
-          echo "🕘 Updating module meta..."
-          echo "   - RESULT: ${RESULT}"
-          echo "   - VERSION: ${VERSION}"
-          echo "   - RELEASE_NOTES: ${RELEASE_NOTES}"
-          if [ "${RESULT}" == "SUCCESS" ]; then
-            echo "✅ Done."
-          else
-            echo "❎ SKIPPED."
-          fi
-          
 #          if [ "${RESULT}" == "SUCCESS" ]; then
 #            DATE=`date +%Y-%m-%d`
 #            FILE_CHANGELOG="RELEASE-NOTES.md"
