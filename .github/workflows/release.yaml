@@ -55,6 +55,7 @@ jobs:
       VERSION: ${{ needs.ReleaseDryRun.outputs.VERSION }}
       RELEASE_NOTES: ${{ needs.ReleaseDryRun.outputs.RELEASE_NOTES }}
     steps:
+      - uses: actions/checkout@v4
       - name: Update module meta
         run: |
           RESULT='${{ needs.ReleaseDryRun.outputs.RESULT }}'
