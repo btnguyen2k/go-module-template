@@ -47,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     if: |
       github.event.pull_request.merged == true
-    needs: [ 'ReleaseDryRun' ]
+    needs: [ ReleaseDryRun ]
     permissions:
       contents: write # to be able to publish a GitHub release
     outputs:
@@ -88,11 +88,11 @@ jobs:
             git config --global user.email "<>"
             git config --global user.name "CI Build"
             git commit -am "Update ${FILE_CHANGELOG} and ${FILE_MODULE} for new version ${VERSION}"
-#            git push origin ${BRANCH_TO_RELEASE}
+            echo FIXME git push origin ${BRANCH_TO_RELEASE}
 
             echo ========== tag ==========
             git tag -f -a "${TAG_PREFIX}${VERSION}" -m "Release ${TAG_PREFIX}/v${VERSION}"
-#            git push origin "${TAG_PREFIX}${VERSION}" -f
+            echo FIXME git push origin "${TAG_PREFIX}${VERSION}" -f
             echo "✅ Done."
           else
             echo "❎ SKIPPED."
@@ -100,7 +100,7 @@ jobs:
 
   MergeToMain:
     runs-on: ubuntu-latest
-    needs: [ 'Release' ]
+    needs: [ Release ]
     permissions:
       pull-requests: write # to be able to create PRs or comment on released PRs
     steps:
