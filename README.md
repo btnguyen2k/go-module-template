@@ -17,7 +17,7 @@ Template to quickly spin up a Go module project.
 
 **Workflow**
 
-Workflow implemented by this template is as follows:
+Workflow implemented by this template is as the following:
 
 - Dependencies are checked and updated weekly by `dependabot.yaml`, and then PRs are automatically merged to `main` branch by `automerge-dependabot.yaml`.
 - `ci.yaml` is triggered on every push to any branch to run tests and generate code coverage report.
