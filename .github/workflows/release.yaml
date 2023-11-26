@@ -9,6 +9,8 @@ on:
 env:
   BRANCH_TO_RELEASE: 'release'
   TAG_PREFIX: 'v'
+  FILE_CHANGELOG: 'RELEASE-NOTES.md'
+  FILE_MODULE: 'module.go'
 
 jobs:
   CallCI:
@@ -69,8 +71,6 @@ jobs:
 
           if [ "${RESULT}" == "SUCCESS" ]; then
             DATE=`date +%Y-%m-%d`
-            FILE_CHANGELOG="RELEASE-NOTES.md"
-            FILE_MODULE="module.go"
             head -1 ${FILE_CHANGELOG} > .temp.md
             echo -e "\n## ${DATE} - v${VERSION}\n\n${RELEASE_NOTES}" >> .temp.md
             tail -n +2 ${FILE_CHANGELOG} >> .temp.md
@@ -98,6 +98,28 @@ jobs:
           else
             echo "❎ SKIPPED."
           fi
+      - name: Create release
+        uses: actions/github-script@v7
+        env:
+          RESULT: ${{ needs.ReleaseDryRun.outputs.RESULT }}
+          VERSION: ${{ needs.ReleaseDryRun.outputs.VERSION }}
+          RELEASE_NOTES: ${{ needs.ReleaseDryRun.outputs.RELEASE_NOTES }}
+        with:
+            script: |
+              if (process.env['RESULT'] != 'SUCCESS') {
+                console.log('❎ SKIPPED.');
+                return;
+              }
+              const {data: release} = await github.rest.repos.createRelease({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                tag_name: process.env['TAG_PREFIX'] + process.env['VERSION'],
+                name: process.env['TAG_PREFIX'] + process.env['VERSION'],
+                body: process.env['RELEASE_NOTES'],
+                draft: false,
+                prerelease: false,
+              });
+              console.log('✅ Created release: ', release);
 
   MergeToMain:
     runs-on: ubuntu-latest
