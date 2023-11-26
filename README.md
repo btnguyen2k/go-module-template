@@ -23,7 +23,7 @@ Template to quickly spin up a Go module project.
    - (Less preferred method) Or simply clone/fork this repository.
 2. Update `go.mod` and `module.go` file to reflect your module name and required Go version.
 3. Review other source code and test files, either update them to reflect your module's name and functionality or remove them.
-4. `LICENSE.tpl.md`, `README.tpl.md` and `RELEASE-NOTES.tpl.md` files are templates. Update them to reflect your module's name and functionality. Then rename them to `LICENSE.md`, `README.md` and `RELEASE-NOTES.md`.
+4. `LICENSE.tpl.md`, `README.tpl.md` and `RELEASE-NOTES.tpl.md` files are templates; update them to reflect your module's name and functionality; then rename them to `LICENSE.md`, `README.md` and `RELEASE-NOTES.md`.
 5. Update other files to suit your needs.
 6. Happy coding!
 
@@ -31,7 +31,7 @@ Template to quickly spin up a Go module project.
 
 Workflows implemented by this template are as the following:
 
-- Dependencies are checked and updated weekly by `dependabot.yaml`, and then PRs are automatically merged to `main` branch by `automerge-dependabot.yaml`.
+- `dependabot.yaml` configures dependencies are checked and updated weekly. `dependabot` will create a PR for each dependency update. `automerge-dependabot.yaml` is triggered to automatically merged PRs to `main` branch.
 - `ci.yaml` is triggered on every push to any branch to run tests and generate code coverage report.
 - Once PR is approved and merged to `release` branch, `release.yaml` is triggered to create a new release. Then a new PR is created to merge `release` branch to `main` branch.
 
@@ -39,8 +39,8 @@ A suggested git workflow to use with this template is as the following:
 
 - Work on your code in development/feature branches as usual.
 - Once ready, create a PR to merge your development/feature branch to `release` branch.
-  - Workflow `release.yaml` will be triggered to create a new release.
-  - Then a new PR will be created to merge `release` branch to `main` branch. Note: you have to review and approve the PR by yourself to finalize the merge.
+  - Once the PR is merged, `release.yaml` is triggered to create a new release.
+  - Then a new PR is created to merge `release` branch to `main` branch. Note: you have to review and approve the PR by yourself to finalize the merge.
 
 > Remember to enable the setting "Allow GitHub Actions to create and approve pull requests" from project's `Settings -> Actions -> General`.
 
