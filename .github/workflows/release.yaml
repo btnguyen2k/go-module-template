@@ -88,12 +88,12 @@ jobs:
             echo ========== commit updates ==========
             git config --global user.email "<>"
             git config --global user.name "CI Build"
-            git commit -am "Update ${FILE_CHANGELOG} and ${FILE_MODULE} for new version ${VERSION}"
-            echo FIXME git push origin ${BRANCH_TO_RELEASE}
+            git commit -am "Update ${FILE_CHANGELOG}, ${FILE_MODULE} and *.go files for new version ${VERSION}"
+            git push origin ${BRANCH_TO_RELEASE}
 
             echo ========== tag ==========
             git tag -f -a "${TAG_PREFIX}${VERSION}" -m "Release ${TAG_PREFIX}/v${VERSION}"
-            echo FIXME git push origin "${TAG_PREFIX}${VERSION}" -f
+            git push origin "${TAG_PREFIX}${VERSION}" -f
             echo "✅ Done."
           else
             echo "❎ SKIPPED."
@@ -118,7 +118,7 @@ jobs:
             const {data: pr} = await github.rest.pulls.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: "Merge branch semver to master after releasing new version ${{ needs.Release.outputs.VERSION }}",
+              title: "Merge to main after releasing new version ${{ needs.Release.outputs.VERSION }}",
               body: process['env']['RELEASE_NOTES'],
               head: process['env']['BRANCH_TO_RELEASE'],
               base: 'main',

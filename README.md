@@ -15,14 +15,6 @@ Template to quickly spin up a Go module project.
   - `ci.yaml`: automatically run tests and generate code coverage report.
   - `release.yaml`: automatically create a new release.
 
-**Workflow**
-
-Workflow implemented by this template is as the following:
-
-- Dependencies are checked and updated weekly by `dependabot.yaml`, and then PRs are automatically merged to `main` branch by `automerge-dependabot.yaml`.
-- `ci.yaml` is triggered on every push to any branch to run tests and generate code coverage report.
-- Once PR is approved and merged to `release` branch, `release.yaml` is triggered to create a new release. Then a new PR is created to merge `release` branch to `main` branch.
-
 ## Usage
 
 1. Create new project from this template:
@@ -34,6 +26,23 @@ Workflow implemented by this template is as the following:
 4. `LICENSE.tpl.md`, `README.tpl.md` and `RELEASE-NOTES.tpl.md` files are templates. Update them to reflect your module's name and functionality. Then rename them to `LICENSE.md`, `README.md` and `RELEASE-NOTES.md`.
 5. Update other files to suit your needs.
 6. Happy coding!
+
+**Workflows**
+
+Workflows implemented by this template are as the following:
+
+- Dependencies are checked and updated weekly by `dependabot.yaml`, and then PRs are automatically merged to `main` branch by `automerge-dependabot.yaml`.
+- `ci.yaml` is triggered on every push to any branch to run tests and generate code coverage report.
+- Once PR is approved and merged to `release` branch, `release.yaml` is triggered to create a new release. Then a new PR is created to merge `release` branch to `main` branch.
+
+A suggested git workflow to use with this template is as the following:
+
+- Work on your code in development/feature branches as usual.
+- Once ready, create a PR to merge your development/feature branch to `release` branch.
+  - Workflow `release.yaml` will be triggered to create a new release.
+  - Then a new PR will be created to merge `release` branch to `main` branch. Note: you have to review and approve the PR by yourself to finalize the merge.
+
+> Remember to enable the setting "Allow GitHub Actions to create and approve pull requests" from project's `Settings -> Actions -> General`.
 
 ## License
 
