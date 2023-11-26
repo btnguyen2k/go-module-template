@@ -1,10 +1,10 @@
 # Automatically release a new version when a PR is merged to branch `release`
 
-name: "release"
+name: 'release'
 on:
   pull_request:
     types: [ closed ]
-    branches: [ release, main, dev ]
+    branches: [ release ]
 
 env:
   BRANCH_TO_RELEASE: 'release'
@@ -17,31 +17,13 @@ jobs:
   ReleaseDryRun:
     runs-on: ubuntu-latest
     needs: [ CallCI ]
+    if: |
+      github.event.pull_request.merged == true
     outputs:
       RESULT: ${{ steps.release_dry_run.outputs.result }}
       VERSION: ${{ steps.release_dry_run.outputs.releaseVersion }}
       RELEASE_NOTES: ${{ steps.release_dry_run.outputs.releaseNotes }}
     steps:
-      - name: Dummy 1
-        run: |
-          echo "BRANCH_TO_RELEASE: ${BRANCH_TO_RELEASE}"
-          echo "GITHUB_REF: ${GITHUB_REF}"
-          echo "TAG_PREFIX: ${TAG_PREFIX}"
-          echo "github.event.workflow_run.event: ${{ github.event.workflow_run.event }}"
-          echo "github.event.workflow_run.conclusion: ${{ github.event.workflow_run.conclusion }}"
-          echo "github.event.pull_request: ${{ github.event.pull_request }}"
-          echo "github.event: ${{ github.event }}"
-          echo "github: ${{ github }}"
-      - name: Dummy 2
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            console.log(context.payload)
-#            console.log(context.payload.workflow_run)
-#            if (context.payload.workflow_run.event == 'pull_request') {
-#              console.log(context.payload.pull_request)
-#            }
       - name: Check out code
         uses: actions/checkout@v4
       - name: Install Node
@@ -61,91 +43,85 @@ jobs:
           tag-prefix: ${{ env.TAG_PREFIX }}
           tag-only: true
 
-#  Release:
-#    runs-on: ubuntu-latest
-#    if: |
-#      github.event.workflow_run.event == 'pull_request' &&
-#      github.event.workflow_run.conclusion == 'success' &&
-#      github.event.pull_request.merged == true
-#    needs: [ 'ReleaseDryRun' ]
-#    permissions:
-#      contents: write # to be able to publish a GitHub release
-#    outputs:
-#      RESULT: ${{ needs.ReleaseDryRun.outputs.RESULT }}
-#      VERSION: ${{ needs.ReleaseDryRun.outputs.VERSION }}
-#      RELEASE_NOTES: ${{ needs.ReleaseDryRun.outputs.RELEASE_NOTES }}
-#    steps:
-#      - name: Update module meta
-#        run: |
-#          RESULT='${{ needs.ReleaseDryRun.outputs.RESULT }}'
-#          VERSION='${{ needs.ReleaseDryRun.outputs.VERSION }}'
-#          RELEASE_NOTES='${{ needs.ReleaseDryRun.outputs.RELEASE_NOTES }}'
-#
-#          echo "🕘 Updating module meta..."
-#          echo "   - RESULT: ${RESULT}"
-#          echo "   - VERSION: ${VERSION}"
-#          echo "   - RELEASE_NOTES: ${RELEASE_NOTES}"
-#          if [ "${RESULT}" == "SUCCESS" ]; then
-#            echo "✅ Done."
-#          else
-#            echo "❎ SKIPPED."
-#          fi
+  Release:
+    runs-on: ubuntu-latest
+    if: |
+      github.event.pull_request.merged == true
+    needs: [ ReleaseDryRun ]
+    permissions:
+      contents: write # to be able to publish a GitHub release
+    outputs:
+      RESULT: ${{ needs.ReleaseDryRun.outputs.RESULT }}
+      VERSION: ${{ needs.ReleaseDryRun.outputs.VERSION }}
+      RELEASE_NOTES: ${{ needs.ReleaseDryRun.outputs.RELEASE_NOTES }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update module meta
+        run: |
+          RESULT='${{ needs.ReleaseDryRun.outputs.RESULT }}'
+          VERSION='${{ needs.ReleaseDryRun.outputs.VERSION }}'
+          RELEASE_NOTES='${{ needs.ReleaseDryRun.outputs.RELEASE_NOTES }}'
 
-#          if [ "${RESULT}" == "SUCCESS" ]; then
-#            DATE=`date +%Y-%m-%d`
-#            FILE_CHANGELOG="RELEASE-NOTES.md"
-#            FILE_MODULE="module.go"
-#            head -1 ${FILE_CHANGELOG} > .temp.md
-#            echo -e "\n## ${DATE} - v${VERSION}\n\n${RELEASE_NOTES}" >> .temp.md
-#            tail -n +2 ${FILE_CHANGELOG} >> .temp.md
-#            mv -f .temp.md ${FILE_CHANGELOG}
-#            echo ========== content of ${FILE_CHANGELOG} ==========
-#            cat ${FILE_CHANGELOG}
-#
-#            sed -i -E "s/^(\s*Version\s*=\s*)\"[^\"]+\"/\1\"${VERSION}\"/" ${FILE_MODULE}
-#            echo ========== content of ${FILE_MODULE} ==========
-#            cat ${FILE_MODULE}
-#
-#            echo ========== update .go files ==========
-#            sed -i -E "s/<<VERSION>>/v${VERSION}/" ./*.go
-#
-#            echo ========== commit updates ==========
-#            git config --global user.email "<>"
-#            git config --global user.name "CI Build"
-#            git commit -am "Update ${FILE_CHANGELOG} and ${FILE_MODULE} for new version ${VERSION}"
-#            git push origin ${BRANCH_TO_RELEASE}
-#
-#            echo ========== tag ==========
-#            git tag -f -a "${TAG_PREFIX}${VERSION}" -m "Release ${TAG_PREFIX}/v${VERSION}"
-#            git push origin "${TAG_PREFIX}${VERSION}" -f
-#            echo "✅ Done."
-#          else
-#            echo "❎ SKIPPED."
-#          fi
+          echo "🕘 Updating module meta..."
+          echo "   - RESULT: ${RESULT}"
+          echo "   - VERSION: ${VERSION}"
+          echo "   - RELEASE_NOTES: ${RELEASE_NOTES}"
 
-#  MergeToMaster:
-#    runs-on: ubuntu-latest
-#    needs: [ 'Release' ]
-#    permissions:
-#      pull-requests: write # to be able to create PRs or comment on released PRs
-#    steps:
-#      - uses: actions/github-script@v7
-#        env:
-#          RESULT: ${{ needs.Release.outputs.RESULT }}
-#          RELEASE_NOTES: ${{ needs.Release.outputs.RELEASE_NOTES }}
-#        with:
-#          script: |
-#            if (process.env['RESULT'] != 'SUCCESS') {
-#              console.log('❎ SKIPPED.');
-#              return;
-#            }
-#            const {data: pr} = await github.rest.pulls.create({
-#              owner: context.repo.owner,
-#              repo: context.repo.repo,
-#              title: "Merge branch semver to master after releasing new version ${{ needs.Release.outputs.VERSION }}",
-#              body: process['env']['RELEASE_NOTES'],
-#              head: process['env']['BRANCH_TO_RELEASE'],
-#              base: 'master',
-#              maintainer_can_modify: true,
-#            });
-#            console.log('✅ Created PR: ', pr);
+          if [ "${RESULT}" == "SUCCESS" ]; then
+            DATE=`date +%Y-%m-%d`
+            FILE_CHANGELOG="RELEASE-NOTES.md"
+            FILE_MODULE="module.go"
+            head -1 ${FILE_CHANGELOG} > .temp.md
+            echo -e "\n## ${DATE} - v${VERSION}\n\n${RELEASE_NOTES}" >> .temp.md
+            tail -n +2 ${FILE_CHANGELOG} >> .temp.md
+            mv -f .temp.md ${FILE_CHANGELOG}
+            echo ========== content of ${FILE_CHANGELOG} ==========
+            cat ${FILE_CHANGELOG}
+
+            sed -i -E "s/^(\s*Version\s*=\s*)\"[^\"]+\"/\1\"${VERSION}\"/" ${FILE_MODULE}
+            echo ========== content of ${FILE_MODULE} ==========
+            cat ${FILE_MODULE}
+
+            echo ========== update .go files ==========
+            sed -i -E "s/<<VERSION>>/v${VERSION}/" ./*.go
+
+            echo ========== commit updates ==========
+            git config --global user.email "<>"
+            git config --global user.name "CI Build"
+            git commit -am "Update ${FILE_CHANGELOG}, ${FILE_MODULE} and *.go files for new version ${VERSION}"
+            git push origin ${BRANCH_TO_RELEASE}
+
+            echo ========== tag ==========
+            git tag -f -a "${TAG_PREFIX}${VERSION}" -m "Release ${TAG_PREFIX}/v${VERSION}"
+            git push origin "${TAG_PREFIX}${VERSION}" -f
+            echo "✅ Done."
+          else
+            echo "❎ SKIPPED."
+          fi
+
+  MergeToMain:
+    runs-on: ubuntu-latest
+    needs: [ Release ]
+    permissions:
+      pull-requests: write # to be able to create PRs or comment on released PRs
+    steps:
+      - uses: actions/github-script@v7
+        env:
+          RESULT: ${{ needs.Release.outputs.RESULT }}
+          RELEASE_NOTES: ${{ needs.Release.outputs.RELEASE_NOTES }}
+        with:
+          script: |
+            if (process.env['RESULT'] != 'SUCCESS') {
+              console.log('❎ SKIPPED.');
+              return;
+            }
+            const {data: pr} = await github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: "Merge to main after releasing new version ${{ needs.Release.outputs.VERSION }}",
+              body: process['env']['RELEASE_NOTES'],
+              head: process['env']['BRANCH_TO_RELEASE'],
+              base: 'main',
+              maintainer_can_modify: true,
+            });
+            console.log('✅ Created PR: ', pr);
