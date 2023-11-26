@@ -3,7 +3,7 @@ package mymodule
 
 const (
 	// Version holds the semantic version number of this module.
-	Version = "0.1.0"
+	Version = "0.1.1"
 )
 
 // This file contains module's metadata only, which is package level documentation and module Version string.
