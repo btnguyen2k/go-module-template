@@ -9,6 +9,21 @@ on:
   workflow_call:
 
 jobs:
+  GoFmt:
+    runs-on: ubuntu-latest
+    name: Check format with go fmt
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Set up Go env
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.18'
+      - name: Run go fmt
+        run: |
+          go version
+          go fmt ./...
+
   Test:
     runs-on: ubuntu-latest
     strategy:
