@@ -9,6 +9,39 @@ on:
   workflow_call:
 
 jobs:
+  GoFmt:
+    runs-on: ubuntu-latest
+    name: Check format with go fmt
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Set up Go env
+        uses: actions/setup-go@v4
+        with:
+          # pick one Go version to check format
+          go-version: '1.18'
+      - name: Run go fmt
+        run: |
+          go version
+          go fmt ./...
+
+  GoLint:
+    name: GoLint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Set up Go env
+        uses: actions/setup-go@v4
+        with:
+          # pick one Go version for linting
+          go-version: '1.18'
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+          only-new-issues: true
+
   Test:
     runs-on: ubuntu-latest
     strategy:
@@ -25,7 +58,13 @@ jobs:
       - name: Run tests
         run: |
           go version
-          go test -v -timeout 9999s -count 1 -p 1 -cover -coverprofile coverage.txt .
+          go test -v -timeout 9999s -count 1 -p 1 -cover -coverprofile coverage.txt ./
+      - name: Run tests (in different package)
+        run: |
+          go version
+          cd module_test && \
+            go test -v -timeout 9999s -count 1 -p 1 -cover -coverprofile ../coverage_test_package.txt -coverpkg=github.com/btnguyen2k/mymodule ./ && \
+            cd ..
       - name: Codecov
         uses: codecov/codecov-action@v3
         with:
