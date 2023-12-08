@@ -1,5 +1,13 @@
 # go-module-template release notes
 
+## 2023-12-08 - v0.2.0
+
+### Added/Refactoring
+
+- Add feature: golangci-lint
+- Add format check to CI pipeline
+- Add feature: tests in a seperate package
+
 ## 2023-11-26 - v0.1.1
 
 ### Fixed/Improvement
