@@ -14,6 +14,7 @@ Template to quickly spin up a Go module project.
   - `dependabot.yaml`, `automerge-dependabot.yaml`: automatically update dependencies and merge PRs from dependabot.
   - `ci.yaml`: automatically run tests and generate code coverage report.
   - `release.yaml`: automatically create a new release.
+  - `codeql.yaml`: automatically run CodeQL analysis.
 
 ## Usage
 
@@ -32,6 +33,7 @@ Template to quickly spin up a Go module project.
 Workflows implemented by this template are as the following:
 
 - `dependabot.yaml` configures dependencies are checked and updated weekly. `dependabot` will create a PR for each dependency update. `automerge-dependabot.yaml` is triggered to automatically merged PRs to `main` branch.
+- `codeql.yaml` is triggered on every push, pr and periodically to run CodeQL analysis.
 - `ci.yaml` is triggered on every push to any branch to run tests and generate code coverage report.
 - Once PR is approved and merged to `release` branch, `release.yaml` is triggered to create a new release. Then a new PR is created to merge `release` branch to `main` branch.
 
