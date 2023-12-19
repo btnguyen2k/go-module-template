@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Check format with go fmt
     steps:
-      - name: Check out code
+      - name: Checkout code
         uses: actions/checkout@v4
       - name: Set up Go env
         uses: actions/setup-go@v5
@@ -29,7 +29,7 @@ jobs:
     name: GoLint
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code
+      - name: Checkout code
         uses: actions/checkout@v4
       - name: Set up Go env
         uses: actions/setup-go@v5
@@ -49,7 +49,7 @@ jobs:
         go: [ '1.18', 'oldstable', 'stable' ]
     name: Run tests with Go ${{ matrix.go }}
     steps:
-      - name: Check out code
+      - name: Checkout code
         uses: actions/checkout@v4
       - name: Set up Go env
         uses: actions/setup-go@v5
