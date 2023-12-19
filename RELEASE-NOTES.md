@@ -1,5 +1,11 @@
 # go-module-template release notes
 
+## 2023-12-19 - v0.3.0
+
+### Added/Refactoring
+
+- Added CodeQL analysis
+
 ## 2023-12-08 - v0.2.0
 
 ### Added/Refactoring
