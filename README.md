@@ -52,4 +52,4 @@ This template is licensed under the MIT License - see the [LICENSE.md](LICENSE.m
 
 ## Contributing & Support
 
-Feel free to create [pull requests](https://github.com/btnguyen2k/go-module-template/pulls) or [issues](https://github.com/btnguyen2k/go-module-template/issues) to report bugs or suggest new features. If you find this project useful, please start it.
+Feel free to create [pull requests](https://github.com/btnguyen2k/go-module-template/pulls) or [issues](https://github.com/btnguyen2k/go-module-template/issues) to report bugs or suggest new features. If you find this project useful, please star it.
