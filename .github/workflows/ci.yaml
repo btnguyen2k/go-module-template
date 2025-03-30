@@ -37,7 +37,7 @@ jobs:
           # pick one Go version for linting
           go-version: '1.18'
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v7
         with:
           version: latest
           only-new-issues: true
