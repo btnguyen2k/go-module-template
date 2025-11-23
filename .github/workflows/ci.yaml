@@ -14,7 +14,7 @@ jobs:
     name: Check format with go fmt
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Set up Go env
         uses: actions/setup-go@v6
         with:
@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Set up Go env
         uses: actions/setup-go@v6
         with:
@@ -50,7 +50,7 @@ jobs:
     name: Run tests with Go ${{ matrix.go }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Set up Go env
         uses: actions/setup-go@v6
         with:
